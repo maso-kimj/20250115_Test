@@ -1,0 +1,99 @@
+import React, { useState, useEffect } from 'react';
+import { AlertCircle } from 'lucide-react';
+
+const NumberGame = () => {
+  // 게임 상태 관리
+  const [targetNumber, setTargetNumber] = useState(0);
+  const [guess, setGuess] = useState('');
+  const [message, setMessage] = useState('1부터 100 사이의 숫자를 맞춰보세요!');
+  const [attempts, setAttempts] = useState(0);
+  const [bestScore, setBestScore] = useState(Infinity);
+  const [gameOver, setGameOver] = useState(false);
+
+  // 새로운 게임 시작 시 랜덤 숫자 생성
+  const initializeGame = () => {
+    setTargetNumber(Math.floor(Math.random() * 100) + 1);
+    setGuess('');
+    setMessage('1부터 100 사이의 숫자를 맞춰보세요!');
+    setAttempts(0);
+    setGameOver(false);
+  };
+
+  // 컴포넌트 마운트 시 게임 초기화
+  useEffect(() => {
+    initializeGame();
+  }, []);
+
+  // 추측 확인 함수
+  const checkGuess = () => {
+    const guessNum = parseInt(guess);
+    
+    if (isNaN(guessNum) || guessNum < 1 || guessNum > 100) {
+      setMessage('1부터 100 사이의 유효한 숫자를 입력해주세요!');
+      return;
+    }
+
+    const newAttempts = attempts + 1;
+    setAttempts(newAttempts);
+
+    if (guessNum === targetNumber) {
+      setMessage(`축하합니다! ${newAttempts}번 만에 맞추셨습니다!`);
+      setGameOver(true);
+      if (newAttempts < bestScore) {
+        setBestScore(newAttempts);
+      }
+    } else if (guessNum < targetNumber) {
+      setMessage('더 큰 숫자입니다!');
+    } else {
+      setMessage('더 작은 숫자입니다!');
+    }
+    
+    setGuess('');
+  };
+
+  return (
+    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg">
+      <h1 className="text-2xl font-bold text-center mb-6">숫자 맞추기 게임</h1>
+      
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-gray-600">시도 횟수: {attempts}</span>
+          <span className="text-gray-600">최고 기록: {bestScore === Infinity ? '-' : bestScore}</span>
+        </div>
+        
+        <div className="flex gap-2">
+          <input
+            type="number"
+            value={guess}
+            onChange={(e) => setGuess(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="1-100 사이의 숫자"
+            disabled={gameOver}
+          />
+          <button
+            onClick={checkGuess}
+            disabled={gameOver}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400"
+          >
+            확인
+          </button>
+        </div>
+      </div>
+
+      <div className="text-center mb-6">
+        <p className="text-gray-700">{message}</p>
+      </div>
+
+      {gameOver && (
+        <button
+          onClick={initializeGame}
+          className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+        >
+          새 게임 시작
+        </button>
+      )}
+    </div>
+  );
+};
+
+export default NumberGame;
